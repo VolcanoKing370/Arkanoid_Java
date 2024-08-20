@@ -11,9 +11,11 @@ public class GameLogic extends JPanel implements KeyListener, ActionListener {
 
     // Initialize the game
     private boolean isPlaying = false;
+    private boolean bounceFlag = false;
     private boolean isOver = false;
     private int score = 0;
     private int totalBricks = 20;
+    private int bounceFactor = 0;
 
     private Timer timer;
     private final int delay = 1;
@@ -43,6 +45,9 @@ public class GameLogic extends JPanel implements KeyListener, ActionListener {
         marbleY = 415;
         marbleVX = -1;
         marbleVY = -2;
+
+        bounceFlag = false;
+        bounceFactor = 0;
 
         mapGen = new MapGenerator(4, 5);
     }
@@ -133,6 +138,8 @@ public class GameLogic extends JPanel implements KeyListener, ActionListener {
             // Paddle hitbox logic
             if(new Rectangle(marbleX, marbleY, 10, 10).intersects(new Rectangle(platformX, platformY, 70, 1))) {
                 marbleVY *= -1;
+                bounceFlag = false;
+                bounceFactor = 0;
                 if(marbleVX < 0 && isRight) {
                     marbleVX *=-1;
                 }
@@ -157,7 +164,14 @@ public class GameLogic extends JPanel implements KeyListener, ActionListener {
                         if(marbleHitbox.intersects(blockHitbox)) {
                             mapGen.setBlockValue(0, i, j);
                             totalBricks--;
-                            score+=5;
+                            if(!bounceFlag) {
+                                score+=5;
+                                bounceFlag = true;
+                            } else {
+                                score+=10+10*bounceFactor;
+                                bounceFactor++;
+                            }
+
 
                             if(marbleX+9 <= blockHitbox.x || marbleX+1 >= blockHitbox.x + blockHitbox.width) {
                                 marbleVX *= -1;
